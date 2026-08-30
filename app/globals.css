@@ -1,0 +1,206 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Nadia Abdel Sater — design tokens
+
+   Palette is hers, straight off the swatches in "Color pallete/":
+     #edece7  off white   — the page
+     #3b3b3b  dark grey   — everything read as text
+     #8f8f8d  light grey  — secondary text, rules
+     #c8756d  signature   — the one accent, used only where something is
+                            clickable, current, or is the word "Dialogue"
+
+   Two of those four fail WCAG AA as text on her own off-white: #8f8f8d lands
+   at 2.74 : 1 and #c8756d at 2.85 : 1, where small text needs 4.5. Since this
+   page is read by scholarship panels, each gets a second, deeper value used
+   only for text on paper — `ash` at 4.94 and `signal-deep` at 4.69, both the
+   same hue, just carried far enough to be legible. On the night ground the
+   originals are already fine (#c8756d reaches 5.09 there), so the dark panels
+   keep her exact swatch and the brand still reads as one colour.
+
+   Two faces, both installed everywhere, so the page paints with no web-font
+   request and no layout shift: Helvetica for structure, a serif for anything
+   read at length and for the italic accent that runs through her CV.
+--------------------------------------------------------------------------- */
+
+@theme inline {
+  --font-display: "Helvetica Neue", Helvetica, Arial, "Liberation Sans", sans-serif;
+  --font-serif: "Times New Roman", Times, "Liberation Serif", serif;
+  --font-sans: var(--font-display);
+
+  --color-paper: #edece7;
+  --color-ink: #3b3b3b;
+  --color-ash: #66655f;
+  --color-signal: #c8756d;
+  --color-signal-deep: #a05244;
+  --color-hairline: #d8d6cf;
+  --color-night: #1c1b1a;
+}
+
+:root {
+  --bar-height: 3.25rem;
+  --gutter: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --gutter: 2.5rem;
+  }
+}
+
+@layer base {
+  html {
+    font-family: var(--font-display);
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-display);
+    /* `clip`, not `hidden` — `hidden` turns the body into a scroll container
+       and breaks position: sticky further down the page. */
+    overflow-x: clip;
+  }
+
+  /* Anchored sections must clear the floating bar. */
+  section[id] {
+    scroll-margin-top: calc(var(--bar-height) + 1.5rem);
+  }
+
+  ::selection {
+    background: var(--color-signal);
+    color: #ffffff;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-signal-deep);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* Lenis owns the scroll position, so native smooth scrolling must not also
+     run — the two fight and produce a stutter. */
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+
+  html.lenis {
+    scroll-behavior: auto !important;
+  }
+
+  html.lenis-stopped {
+    overflow: hidden;
+  }
+}
+
+@layer components {
+  /* Oversized structural type: her name, section titles, project numbers. */
+  .type-display {
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: -0.045em;
+    line-height: 0.84;
+  }
+
+  /* The italic serif that carries "Dialogue" through her CV and catchphrase. */
+  .type-accent {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-transform: none;
+  }
+
+  /* Small caps-and-tracking labels: nav, eyebrows, counters, captions. */
+  .type-label {
+    font-family: var(--font-display);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.6875rem;
+    letter-spacing: 0.18em;
+    line-height: 1.4;
+  }
+
+  /* Everything read at length. */
+  .type-body {
+    font-family: var(--font-serif);
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    letter-spacing: 0.005em;
+  }
+
+  @media (min-width: 768px) {
+    .type-body {
+      font-size: 1.15rem;
+    }
+  }
+
+  /* Full-bleed viewport height that survives mobile browser chrome. */
+  .h-viewport {
+    height: 100vh;
+    height: 100svh;
+  }
+
+  .min-h-viewport {
+    min-height: 100vh;
+    min-height: 100svh;
+  }
+
+  /* Underline that wipes in from the left on hover. */
+  .link-wipe {
+    position: relative;
+  }
+
+  .link-wipe::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -0.22em;
+    height: 1px;
+    width: 100%;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .link-wipe:hover::after,
+  .link-wipe:focus-visible::after {
+    transform: scaleX(1);
+  }
+
+  /* The arch: a half-round top on a straight-sided body. Used for the project
+     cards, and echoed at small size as a bullet. Percentages so the curve
+     stays a true semicircle whatever the card width. */
+  .mask-arch {
+    border-radius: 50% 50% 0 0 / 32% 32% 0 0;
+  }
+
+  /* Her leaf pattern, laid over flat colour at low opacity so large empty
+     areas keep the paper texture of the CV rather than reading as flat CSS. */
+  .pattern-wash {
+    background-image: var(--pattern-url);
+    background-size: 380px auto;
+    background-repeat: repeat;
+    opacity: 0.5;
+    mix-blend-mode: multiply;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
