@@ -1,24 +1,28 @@
-# Only needed if you later connect this repository to Netlify so it builds on
-# every push. For a drag-and-drop deploy of the docs/ folder, Netlify ignores
-# this file — the folder is already built.
+# docs/ is built locally and committed, so Netlify has nothing to build — it
+# just serves the folder. No build command on purpose: a remote rebuild would
+# install the whole devDependency tree (puppeteer, ffmpeg-static, sharp — none
+# of which `next build` needs) to reproduce a directory that is already in the
+# repo, and give it more ways to fail.
+#
+# The trade is the same one the repo already makes everywhere else: after
+# changing anything, run `npm run build` and commit docs/ with it.
 
 [build]
-  command = "npm run build"
   publish = "docs"
+  command = ""
 
 [build.environment]
   NODE_VERSION = "22"
 
-# The renders and the hero video are content-hashed by name only when Next
-# emits them under _next/. Everything in media/ keeps its filename across
-# builds, so it is cached for a day rather than forever — long enough to be
-# fast, short enough that replacing an image actually shows up.
-[[headers]]
-  for = "/media/*"
-  [headers.values]
-    Cache-Control = "public, max-age=86400, must-revalidate"
-
+# Files under _next/static are content-hashed, so they can be cached forever.
 [[headers]]
   for = "/_next/static/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+
+# Everything in media/ keeps its filename across builds, so cache it for a day
+# — long enough to be fast, short enough that replacing a render shows up.
+[[headers]]
+  for = "/media/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, must-revalidate"
